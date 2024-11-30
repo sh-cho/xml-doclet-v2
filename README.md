@@ -52,7 +52,7 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
 
     // ...
-    xmlDoclet "com.github.shcho:xml-doclet-v2:${xmlDocletVersion}"
+    xmlDoclet "com.github.sh-cho:xml-doclet-v2:${xmlDocletVersion}"
 }
 
 tasks.register('xmldoc', Javadoc) {

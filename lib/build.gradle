@@ -4,7 +4,7 @@ plugins {
     id 'signing'
 }
 
-group = 'com.github.shcho'
+group = 'com.github.sh-cho'
 version = '0.1.0'
 description = 'Doclet generating Javadoc as XML with the new Doclet API'
 
