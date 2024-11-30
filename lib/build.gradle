@@ -1,0 +1,105 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group = 'com.github.shcho'
+version = '0.1.0'
+description = 'Doclet generating Javadoc as XML with the new Doclet API'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+}
+
+testing {
+    suites {
+        test {
+            useJUnitJupiter('5.11.3')
+        }
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'xml-doclet-v2'
+            from components.java
+
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+
+            pom {
+                name = 'XML Doclet v2'
+                description = project.description
+                url = 'https://github.com/sh-cho/xml-doclet-v2'
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'sh-cho'
+                        name = 'Seonghyeon Cho'
+                        email = 'seonghyeoncho96@gmail.com'
+                        url = 'https://github.com/sh-cho'
+                        timezone = 'Asia/Seoul'
+                    }
+                }
+
+                issueManagement {
+                    system = 'GitHub'
+                    url = 'https://github.com/sh-cho/xml-doclet-v2/issues'
+                }
+
+                scm {
+                    connection = 'scm:git:ssh://git@github.com/sh-cho/xml-doclet-v2.git'
+                    developerConnection = 'scm:git:ssh://git@github.com/sh-cho/xml-doclet-v2.git'
+                    url = 'https://github.com/sh-cho/xml-doclet-v2'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'jitpack'
+            url = uri('https://jitpack.io')
+        }
+    }
+}
+
+signing {
+    // allow unsigned local lib build
+    required { gradle.taskGraph.hasTask("publish") }
+    sign publishing.publications.mavenJava
+}
+
+jar {
+    archiveBaseName.set('xml-doclet-v2')
+}
