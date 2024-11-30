@@ -1,5 +1,7 @@
 # xml-doclet-v2
 
+[![JitPack version badge](https://img.shields.io/jitpack/version/com.github.sh-cho/xml-doclet-v2)](https://jitpack.io/#sh-cho/xml-doclet-v2)
+
 Doclet generating Javadoc as XML with [the new Doclet API](https://openjdk.org/groups/compiler/using-new-doclet.html).
 
 > [!NOTE]
