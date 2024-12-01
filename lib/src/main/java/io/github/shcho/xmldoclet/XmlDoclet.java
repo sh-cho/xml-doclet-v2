@@ -1,6 +1,8 @@
 package io.github.shcho.xmldoclet;
 
-import java.io.FileWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -17,7 +19,10 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic;
 import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+
+import org.apache.commons.text.StringEscapeUtils;
 
 import com.sun.source.doctree.DocCommentTree;
 import com.sun.source.util.DocTrees;
@@ -49,6 +54,7 @@ public class XmlDoclet implements Doclet {
     // options
     private String outputDir = DEFAULT_OUTPUT_DIR;
     private String filename = DEFAULT_OUTPUT_FILENAME;
+    private Boolean escapeCharacters = true;
     private final Set<Option> options = Set.of(
             // NOTE: this must be "-d" because of the Standard doclet
             new Option("-d", true,
@@ -67,8 +73,8 @@ public class XmlDoclet implements Doclet {
                     return OK;
                 }
             },
-            new Option("-filename", true, "Output filename. (Default: " + DEFAULT_OUTPUT_FILENAME + ")",
-                       "[<filename>]", Kind.OTHER) {
+            new Option("-Xfilename", true, "Output filename. (Default: " + DEFAULT_OUTPUT_FILENAME + ")",
+                       "[<filename>]", Kind.EXTENDED) {
                 @Override
                 public boolean process(String option, List<String> arguments) {
                     final String filename = arguments.isEmpty() ? DEFAULT_OUTPUT_FILENAME : arguments.get(0);
@@ -76,7 +82,21 @@ public class XmlDoclet implements Doclet {
                     XmlDoclet.this.filename = filename;
                     return OK;
                 }
-            });
+            },
+            // option to whether escape characters or not
+            // e.g. `-Xescape true`, "안녕" will be "\uc548\ub155" (default)
+            //      `-Xescape false`, it will be printed in xml as "안녕",
+            new Option("-Xescape", true, "Unescape characters in javadoc comments (Default: true)",
+                       "[true|false]", Kind.EXTENDED) {
+                @Override
+                public boolean process(String option, List<String> arguments) {
+                    final String escape = arguments.isEmpty() ? "true" : arguments.get(0);
+
+                    XmlDoclet.this.escapeCharacters = Boolean.parseBoolean(escape);
+                    return OK;
+                }
+            }
+    );
     /**
      * For now {@code -doctitle} and {@code -windowtitle} option is not needed,
      * but just allow it to make gradle happy.
@@ -91,7 +111,7 @@ public class XmlDoclet implements Doclet {
                        Kind.STANDARD) {
                 @Override
                 public boolean process(String option, List<String> arguments) {
-                    reporter.print(Diagnostic.Kind.NOTE, "Option " + option + " is not ignored");
+                    reporter.print(Diagnostic.Kind.NOTE, "Option " + option + " is ignored");
                     return OK;
                 }
             },
@@ -99,14 +119,14 @@ public class XmlDoclet implements Doclet {
                        Kind.STANDARD) {
                 @Override
                 public boolean process(String option, List<String> arguments) {
-                    reporter.print(Diagnostic.Kind.NOTE, "Option " + option + " is not ignored");
+                    reporter.print(Diagnostic.Kind.NOTE, "Option " + option + " is ignored");
                     return OK;
                 }
             },
             new Option("-notimestamp", false, "IGNORED", null, Kind.STANDARD) {
                 @Override
                 public boolean process(String option, List<String> arguments) {
-                    reporter.print(Diagnostic.Kind.NOTE, "Option " + option + " is not ignored");
+                    reporter.print(Diagnostic.Kind.NOTE, "Option " + option + " is ignored");
                     return OK;
                 }
             });
@@ -139,19 +159,23 @@ public class XmlDoclet implements Doclet {
         // print runtime information
         reporter.print(Diagnostic.Kind.NOTE, "Output directory: " + outputDir);
         reporter.print(Diagnostic.Kind.NOTE, "Output filename: " + filename);
+        reporter.print(Diagnostic.Kind.NOTE, "Escape characters: " + escapeCharacters);
 
-        try (final FileWriter fileWriter = new FileWriter(outputDir + '/' + filename)) {
-            final XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(fileWriter);
-            writer.writeStartDocument(DEFAULT_ENCODING, "1.0");
-            writer.writeStartElement("root");
+        try (final OutputStreamWriter writer = new OutputStreamWriter(
+                new FileOutputStream(outputDir + '/' + filename), StandardCharsets.UTF_8)) {
+            final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
+            final XMLStreamWriter xmlWriter = xmlOutputFactory.createXMLStreamWriter(writer);
+
+            xmlWriter.writeStartDocument(DEFAULT_ENCODING, "1.0");
+            xmlWriter.writeStartElement("root");
 
             for (PackageElement packageElement : ElementFilter.packagesIn(docEnv.getIncludedElements())) {
-                processPackage(writer, packageElement);
+                processPackage(writer, xmlWriter, packageElement);
             }
 
-            writer.writeEndElement(); // root
-            writer.writeEndDocument();
-            writer.close();
+            xmlWriter.writeEndElement(); // root
+            xmlWriter.writeEndDocument();
+            xmlWriter.close();
         } catch (Exception e) {
             reporter.print(Diagnostic.Kind.ERROR, "Error generating XML: " + e.getMessage());
             return ERROR;
@@ -160,50 +184,55 @@ public class XmlDoclet implements Doclet {
         return OK;
     }
 
-    private void processPackage(final XMLStreamWriter writer, final PackageElement packageElement)
+    private void processPackage(final OutputStreamWriter writer, final XMLStreamWriter xmlWriter, final PackageElement packageElement)
             throws Exception {
-        writer.writeStartElement("package");
-        writer.writeAttribute("name", packageElement.getQualifiedName().toString());
+        xmlWriter.writeStartElement("package");
+        xmlWriter.writeAttribute("name", packageElement.getQualifiedName().toString());
 
         for (final TypeElement typeElement : ElementFilter.typesIn(packageElement.getEnclosedElements())) {
-            processType(writer, typeElement);
+            processType(xmlWriter, typeElement);
         }
 
-        writer.writeEndElement(); // package
+        xmlWriter.writeEndElement(); // package
     }
 
-    private void processType(final XMLStreamWriter writer, final TypeElement typeElement) throws Exception {
+    private void processType(final XMLStreamWriter xmlWriter, final TypeElement typeElement) throws Exception {
         final String elementName = typeElement.getKind() == ElementKind.CLASS ? "class" : "interface";
-        writer.writeStartElement(elementName);
-        writer.writeAttribute("name", typeElement.getSimpleName().toString());
-        writer.writeAttribute("qualified", typeElement.getQualifiedName().toString());
+        xmlWriter.writeStartElement(elementName);
+        xmlWriter.writeAttribute("name", typeElement.getSimpleName().toString());
+        xmlWriter.writeAttribute("qualified", typeElement.getQualifiedName().toString());
 
-        final DocCommentTree docCommentTree = docTrees.getDocCommentTree(typeElement);
-        if (docCommentTree != null) {
-            writer.writeStartElement("comment");
-            writer.writeCharacters(docCommentTree.toString());
-            writer.writeEndElement(); // comment
-        }
+        processDocCommentTree(xmlWriter, docTrees.getDocCommentTree(typeElement));
 
         for (final VariableElement field : ElementFilter.fieldsIn(typeElement.getEnclosedElements())) {
-            processField(writer, field);
+            processField(xmlWriter, field);
         }
 
-        writer.writeEndElement(); // class or interface
+        xmlWriter.writeEndElement(); // class or interface
     }
 
-    private void processField(final XMLStreamWriter writer, final VariableElement field) throws Exception {
-        writer.writeStartElement("field");
-        writer.writeAttribute("name", field.getSimpleName().toString());
+    private void processField(final XMLStreamWriter xmlWriter, final VariableElement field) throws Exception {
+        xmlWriter.writeStartElement("field");
+        xmlWriter.writeAttribute("name", field.getSimpleName().toString());
 
-        final DocCommentTree docCommentTree = docTrees.getDocCommentTree(field);
-        if (docCommentTree != null) {
-            writer.writeStartElement("comment");
-            writer.writeCharacters(docCommentTree.toString());
-            writer.writeEndElement();
+        processDocCommentTree(xmlWriter, docTrees.getDocCommentTree(field));
+
+        xmlWriter.writeEndElement();
+    }
+
+    private void processDocCommentTree(XMLStreamWriter xmlWriter, DocCommentTree docCommentTree) throws XMLStreamException {
+        if (docCommentTree == null) {
+            return;
         }
 
-        writer.writeEndElement();
+        xmlWriter.writeStartElement("comment");
+        final String commentString = docCommentTree.toString();
+        if (escapeCharacters) {
+            xmlWriter.writeCharacters(commentString);
+        } else {
+            xmlWriter.writeCharacters(StringEscapeUtils.unescapeJava(commentString));
+        }
+        xmlWriter.writeEndElement(); // comment
     }
 
     abstract class Option implements Doclet.Option {

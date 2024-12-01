@@ -1,3 +1,5 @@
 [versions]
+apache-commons-text = "1.10.0"
 
 [libraries]
+apache-commons-text = { group = "org.apache.commons", name = "commons-text", version.ref = "apache-commons-text" }
