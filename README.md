@@ -12,7 +12,7 @@ Doclet generating Javadoc as XML with [the new Doclet API](https://openjdk.org/g
 This generates Javadoc XML format originally defined by [MarkusBernhardt/xml-doclet](https://github.com/MarkusBernhardt/xml-doclet) - See [javadoc.xsd](https://github.com/MarkusBernhardt/xml-doclet/blob/6bb0cc1ff82b2e20787b93252c6b294d0eb31622/src/main/xjc/javadoc.xsd).
 
 ## Supported Java versions
-- 17 and later
+- 11 and later
 
 ## Usage
 
