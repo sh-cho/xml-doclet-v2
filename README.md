@@ -21,7 +21,7 @@ This generates Javadoc XML format originally defined by [MarkusBernhardt/xml-doc
 javadoc \
   -classpath '...' \
   -d '/.../output/directory' \
-  -doclet 'com.github.shcho.xmldoclet.XmlDoclet' \
+  -doclet 'io.github.shcho.xmldoclet.XmlDoclet' \
   -docletpath '/.../xml-doclet-v2-{version}.jar' \
   -filename 'javadoc.xml' \
   '...java files...'
@@ -54,7 +54,7 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
 
     // ...
-    xmlDoclet "com.github.sh-cho:xml-doclet-v2:${xmlDocletVersion}"
+    xmlDoclet "io.github.sh-cho:xml-doclet-v2:${xmlDocletVersion}"
 }
 
 tasks.register('xmldoc', Javadoc) {
@@ -77,7 +77,7 @@ tasks.register('xmldoc', Javadoc) {
 
     options {
         docletpath = configurations.xmlDoclet.files as List
-        doclet = "com.github.shcho.xmldoclet.XmlDoclet"
+        doclet = "io.github.shcho.xmldoclet.XmlDoclet"
 
         // addStringOption("filename", "custom-output-name.xml")
     }

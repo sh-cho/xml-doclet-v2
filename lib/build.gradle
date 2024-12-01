@@ -4,8 +4,8 @@ plugins {
     id 'signing'
 }
 
-group = 'com.github.sh-cho'
-version = '0.1.0'
+group = 'io.github.sh-cho'
+version = '0.1.1'
 description = 'Doclet generating Javadoc as XML with the new Doclet API'
 
 repositories {
@@ -24,15 +24,17 @@ testing {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
 
     withJavadocJar()
     withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 11
 }
 
 publishing {

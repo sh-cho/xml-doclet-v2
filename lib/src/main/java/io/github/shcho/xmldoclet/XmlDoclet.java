@@ -1,4 +1,4 @@
-package com.github.shcho.xmldoclet;
+package io.github.shcho.xmldoclet;
 
 import java.io.FileWriter;
 import java.nio.file.Files;
@@ -52,7 +52,7 @@ public class XmlDoclet implements Doclet {
     private final Set<Option> options = Set.of(
             // NOTE: this must be "-d" because of the Standard doclet
             new Option("-d", true,
-                       "Destination directory for output file. (Default: %s)".formatted(DEFAULT_OUTPUT_DIR),
+                       "Destination directory for output file. (Default: " + DEFAULT_OUTPUT_DIR + ")",
                        "[<directory>]", Kind.STANDARD) {
                 @Override
                 public boolean process(String option, List<String> arguments) {
@@ -67,7 +67,7 @@ public class XmlDoclet implements Doclet {
                     return OK;
                 }
             },
-            new Option("-filename", true, "Output filename. (Default: %s)".formatted(DEFAULT_OUTPUT_FILENAME),
+            new Option("-filename", true, "Output filename. (Default: " + DEFAULT_OUTPUT_FILENAME + ")",
                        "[<filename>]", Kind.OTHER) {
                 @Override
                 public boolean process(String option, List<String> arguments) {
@@ -91,7 +91,7 @@ public class XmlDoclet implements Doclet {
                        Kind.STANDARD) {
                 @Override
                 public boolean process(String option, List<String> arguments) {
-                    reporter.print(Diagnostic.Kind.NOTE, "Option %s is ignored".formatted(option));
+                    reporter.print(Diagnostic.Kind.NOTE, "Option " + option + " is not ignored");
                     return OK;
                 }
             },
@@ -99,14 +99,14 @@ public class XmlDoclet implements Doclet {
                        Kind.STANDARD) {
                 @Override
                 public boolean process(String option, List<String> arguments) {
-                    reporter.print(Diagnostic.Kind.NOTE, "Option %s is not ignored".formatted(option));
+                    reporter.print(Diagnostic.Kind.NOTE, "Option " + option + " is not ignored");
                     return OK;
                 }
             },
             new Option("-notimestamp", false, "IGNORED", null, Kind.STANDARD) {
                 @Override
                 public boolean process(String option, List<String> arguments) {
-                    reporter.print(Diagnostic.Kind.NOTE, "Option %s is not ignored".formatted(option));
+                    reporter.print(Diagnostic.Kind.NOTE, "Option " + option + " is not ignored");
                     return OK;
                 }
             });
