@@ -83,10 +83,10 @@ public class XmlDoclet implements Doclet {
                     return OK;
                 }
             },
-            // option to whether escape characters or not
-            // e.g. `-Xescape true`, "안녕" will be "\uc548\ub155" (default)
-            //      `-Xescape false`, it will be printed in xml as "안녕",
-            new Option("-Xescape", true, "Unescape characters in javadoc comments (Default: true)",
+            new Option("-Xescape", true, "Escape characters in javadoc comments\n"
+                                         + "e.g. `-Xescape true`, \"안녕\" -> \"\\uc548\\ub155\"\n"
+                                         + "     `-Xescape false`, \"안녕\" -> \"안녕\"\n"
+                                         + "(Default: true)",
                        "[true|false]", Kind.EXTENDED) {
                 @Override
                 public boolean process(String option, List<String> arguments) {
@@ -98,9 +98,9 @@ public class XmlDoclet implements Doclet {
             }
     );
     /**
-     * For now {@code -doctitle} and {@code -windowtitle} option is not needed,
+     * For now some options (ex. {@code -doctitle}, {@code -windowtitle}, etc.) are not needed for this Doclet,
      * but just allow it to make gradle happy.
-     * <br>
+     * <p>
      * Without this, gradle will fail with the error like below:
      * <pre>
      * error: option -doctitle not allowed

@@ -27,6 +27,8 @@ javadoc \
   '...java files...'
 ```
 
+Note: currently `commons-lang3` should be provided in the classpath.
+
 ### Gradle (Groovy DSL)
 ex) when using [Lombok](https://projectlombok.org/)
 ```groovy
@@ -82,7 +84,9 @@ tasks.register('xmldoc', Javadoc) {
         docletpath = configurations.xmlDoclet.files as List
         doclet = "io.github.shcho.xmldoclet.XmlDoclet"
 
-        // addStringOption("filename", "custom-output-name.xml")
+        //// Additional options
+        // addStringOption("-Xfilename", "custom-output-name.xml")
+        // addStringOption("-Xescape", "false")  // If you want to unescape strings in Javadoc comments
     }
 }
 
@@ -90,16 +94,26 @@ tasks.register('xmldoc', Javadoc) {
 
 ## Options
 ```
+# Standard doclet options
 -d [<directory>]
               Destination directory for output file. (Default: .)
--filename [<filename>]
+
+# Custom options (prefix with -X)
+-Xfilename [<filename>]
               Output filename. (Default: javadoc.xml)
+-Xescape [true|false]
+              Escape characters in javadoc comments. (Default: true)
 ```
 
 ## References
 - [MarkusBernhardt/xml-doclet](https://github.com/MarkusBernhardt/xml-doclet) - Supports JDK 8
 - [manticore-projects/xml-doclet](https://github.com/manticore-projects/xml-doclet) (fork of above) - Supports JDK 11 and later, via enforcing Java toolchain version of 11
 - https://github.com/vojtechhabarta/typescript-generator
+
+## TODO
+- [ ] Publish uber jar also
+- [ ] Publish to Maven Central
+  - Package name might be changed
 
 ## License
 [Apache License 2.0](LICENSE)
