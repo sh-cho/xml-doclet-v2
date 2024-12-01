@@ -53,8 +53,11 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    // ...
-    xmlDoclet "io.github.sh-cho:xml-doclet-v2:${xmlDocletVersion}"
+    // from JitPack
+    xmlDoclet "com.github.sh-cho:xml-doclet-v2:${xmlDocletVersion}"
+
+    // from Maven Central (WIP, Not yet published)
+    // xmlDoclet "io.github.shcho:xml-doclet-v2:${xmlDocletVersion}"
 }
 
 tasks.register('xmldoc', Javadoc) {
