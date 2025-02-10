@@ -27,8 +27,6 @@ javadoc \
   '...java files...'
 ```
 
-Note: currently `commons-lang3` should be provided in the classpath.
-
 ### Gradle (Groovy DSL)
 ex) when using [Lombok](https://projectlombok.org/)
 ```groovy
@@ -111,7 +109,6 @@ tasks.register('xmldoc', Javadoc) {
 - https://github.com/vojtechhabarta/typescript-generator
 
 ## TODO
-- [ ] Publish uber jar also
 - [ ] Publish to Maven Central
   - Package name might be changed
 

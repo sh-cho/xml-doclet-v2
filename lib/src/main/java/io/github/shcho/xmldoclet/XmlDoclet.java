@@ -22,11 +22,10 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.commons.text.StringEscapeUtils;
-
 import com.sun.source.doctree.DocCommentTree;
 import com.sun.source.util.DocTrees;
 
+import io.github.shcho.utils.StringUtils;
 import jdk.javadoc.doclet.Doclet;
 import jdk.javadoc.doclet.Doclet.Option.Kind;
 import jdk.javadoc.doclet.DocletEnvironment;
@@ -230,7 +229,7 @@ public class XmlDoclet implements Doclet {
         if (escapeCharacters) {
             xmlWriter.writeCharacters(commentString);
         } else {
-            xmlWriter.writeCharacters(StringEscapeUtils.unescapeJava(commentString));
+            xmlWriter.writeCharacters(StringUtils.unescapeJavaString(commentString));
         }
         xmlWriter.writeEndElement(); // comment
     }
