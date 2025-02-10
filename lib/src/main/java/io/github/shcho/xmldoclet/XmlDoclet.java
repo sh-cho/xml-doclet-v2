@@ -196,7 +196,21 @@ public class XmlDoclet implements Doclet {
     }
 
     private void processType(final XMLStreamWriter xmlWriter, final TypeElement typeElement) throws Exception {
-        final String elementName = typeElement.getKind() == ElementKind.CLASS ? "class" : "interface";
+        final String elementName;
+        switch (typeElement.getKind()) {
+            case CLASS, RECORD:
+                elementName = "class";
+                break;
+            case INTERFACE:
+                elementName = "interface";
+                break;
+            case ENUM:
+                elementName = "enum";
+                break;
+            default:
+                return;
+        }
+
         xmlWriter.writeStartElement(elementName);
         xmlWriter.writeAttribute("name", typeElement.getSimpleName().toString());
         xmlWriter.writeAttribute("qualified", typeElement.getQualifiedName().toString());
@@ -204,14 +218,20 @@ public class XmlDoclet implements Doclet {
         processDocCommentTree(xmlWriter, docTrees.getDocCommentTree(typeElement));
 
         for (final VariableElement field : ElementFilter.fieldsIn(typeElement.getEnclosedElements())) {
-            processField(xmlWriter, field);
+            processField(xmlWriter, field, typeElement.getKind());
         }
 
-        xmlWriter.writeEndElement(); // class or interface
+        xmlWriter.writeEndElement(); // class, interface, enum, record
     }
 
-    private void processField(final XMLStreamWriter xmlWriter, final VariableElement field) throws Exception {
-        xmlWriter.writeStartElement("field");
+    private void processField(final XMLStreamWriter xmlWriter, final VariableElement field, final ElementKind parentKind) throws Exception {
+        final String elementName;
+        if (parentKind == ElementKind.ENUM) {
+            elementName = "constant";
+        } else {
+            elementName = "field";
+        }
+        xmlWriter.writeStartElement(elementName);
         xmlWriter.writeAttribute("name", field.getSimpleName().toString());
 
         processDocCommentTree(xmlWriter, docTrees.getDocCommentTree(field));
