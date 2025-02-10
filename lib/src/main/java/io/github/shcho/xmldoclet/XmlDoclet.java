@@ -169,7 +169,7 @@ public class XmlDoclet implements Doclet {
             xmlWriter.writeStartElement("root");
 
             for (PackageElement packageElement : ElementFilter.packagesIn(docEnv.getIncludedElements())) {
-                processPackage(writer, xmlWriter, packageElement);
+                processPackage(xmlWriter, packageElement);
             }
 
             xmlWriter.writeEndElement(); // root
@@ -183,7 +183,7 @@ public class XmlDoclet implements Doclet {
         return OK;
     }
 
-    private void processPackage(final OutputStreamWriter writer, final XMLStreamWriter xmlWriter, final PackageElement packageElement)
+    private void processPackage(final XMLStreamWriter xmlWriter, final PackageElement packageElement)
             throws Exception {
         xmlWriter.writeStartElement("package");
         xmlWriter.writeAttribute("name", packageElement.getQualifiedName().toString());
@@ -219,7 +219,8 @@ public class XmlDoclet implements Doclet {
         xmlWriter.writeEndElement();
     }
 
-    private void processDocCommentTree(XMLStreamWriter xmlWriter, DocCommentTree docCommentTree) throws XMLStreamException {
+    private void processDocCommentTree(XMLStreamWriter xmlWriter, DocCommentTree docCommentTree)
+            throws XMLStreamException {
         if (docCommentTree == null) {
             return;
         }
